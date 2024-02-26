@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: HighJumpUp
   m_EditorClassIdentifier: 
   animationName: HighJumpUp
+  barrierTag: 
   minimumHeight: 0.7
-  maximumHeight: 1
+  maximumHeight: 2
   lookAtObstacle: 1
+  parkourActionDelay: 0
   allowTargetMatching: 1
   compareBodyPart: 3
   compareStartTime: 0.19

@@ -7,6 +7,7 @@ public class PlayerScript : MonoBehaviour
     [Header("Player Movement")]
     public float movementSpeed = 5f;
     public MainCameraController MCC;
+    public EnvironmentChecker environmentChecker;
     public float rotSpeed = 600f;
     Quaternion requiredRotation;
     bool playerControl = true;
@@ -20,6 +21,7 @@ public class PlayerScript : MonoBehaviour
     public Vector3 surfaceCheckOffset;
     public LayerMask surfaceLayer;
     bool onSurface;
+    public bool playerOnLedge { get; set; }
     [SerializeField] float fallingSpeed;
     [SerializeField] Vector3 moveDir;
 
@@ -33,6 +35,13 @@ public class PlayerScript : MonoBehaviour
         if(onSurface)
         {
             fallingSpeed = 0f;
+
+            playerOnLedge = environmentChecker.CheckLedge(moveDir);
+
+            if(playerOnLedge)
+            {
+                Debug.Log("Player is on ledge");
+            }
         }
         else
         {
@@ -57,7 +66,8 @@ public class PlayerScript : MonoBehaviour
 
         var movementDirection = MCC.flatRotation * movementInput;
 
-        CC.Move(movementDirection * movementSpeed * Time.deltaTime);
+        if(CC.enabled)
+            CC.Move(movementDirection * movementSpeed * Time.deltaTime);
 
         if (movementAmount > 0)
         {

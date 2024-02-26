@@ -57,7 +57,7 @@ public class ParkourControllerScript : MonoBehaviour
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, action.RequiredRotation, playerScript.rotSpeed);
             }
 
-            if(action.AllowTargetMatching)
+            if(action.AllowTargetMatching && !animator.IsInTransition(0))
             {
                 CompareTarget(action);
             }
