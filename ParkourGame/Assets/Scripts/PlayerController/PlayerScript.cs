@@ -52,6 +52,7 @@ public class PlayerScript : MonoBehaviour
         velocity.y = fallingSpeed;
         
         SurfaceCheck();
+        animator.SetBool("onSurface", onSurface);
         Debug.Log("Player on Surface" + onSurface);
     }
 

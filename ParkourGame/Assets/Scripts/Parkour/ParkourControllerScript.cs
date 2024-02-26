@@ -8,6 +8,7 @@ public class ParkourControllerScript : MonoBehaviour
     bool playerInAction;
     public Animator animator;
     public PlayerScript playerScript;
+    [SerializeField] NewParkourAction jumpDownParkourAction;
 
     [Header("Parkour Action Area")]
     public List<NewParkourAction> newParkourActions;
@@ -30,6 +31,12 @@ public class ParkourControllerScript : MonoBehaviour
                     }
                 }
             }
+        }
+
+        if(playerScript.playerOnLedge && !playerInAction)
+        {
+            playerScript.playerOnLedge = false;
+            StartCoroutine(PerformParkourAction(jumpDownParkourAction));
         }
     }
 
