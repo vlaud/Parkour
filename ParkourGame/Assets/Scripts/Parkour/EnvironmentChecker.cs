@@ -13,6 +13,11 @@ public class EnvironmentChecker : MonoBehaviour
     [SerializeField] float ledgeRayLength = 11f;
     [SerializeField] float ledgeRayHeightThreshold = 0.76f;
 
+    [Header("Climbing Check")]
+    [SerializeField] float climbingRayLength = 1.6f;
+    [SerializeField] LayerMask climbingLayer;
+    public int numberOfRays = 12;
+
     public ObstacleInfo CheckObstacle()
     {
         var hitData = new ObstacleInfo();
@@ -60,6 +65,29 @@ public class EnvironmentChecker : MonoBehaviour
                 }
             }
         }
+        return false;
+    }
+
+    public bool CheckClimbing(Vector3 climbDirection, out RaycastHit climbInfo)
+    {
+        climbInfo = new RaycastHit();
+
+        if (climbDirection == Vector3.zero)
+            return false;
+
+        var climbOrigin = transform.position + Vector3.up * 1.5f;
+        var climbOffset = new Vector3(0, 0.19f, 0);
+
+        for(int i = 0; i < numberOfRays; i++)
+        {
+            Debug.DrawRay(climbOrigin + climbOffset * i, climbDirection, Color.red);
+            if(Physics.Raycast(climbOrigin + climbOffset * i, climbDirection, out RaycastHit hit, climbingRayLength, climbingLayer))
+            {
+                climbInfo = hit;
+                return true;
+            }
+        }
+
         return false;
     }
 }
