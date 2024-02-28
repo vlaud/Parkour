@@ -33,10 +33,13 @@ public class ParkourControllerScript : MonoBehaviour
             }
         }
 
-        if(playerScript.playerOnLedge && !playerInAction)
+        if(playerScript.playerOnLedge && !playerInAction && Input.GetButtonDown("Jump"))
         {
-            playerScript.playerOnLedge = false;
-            StartCoroutine(PerformParkourAction(jumpDownParkourAction));
+            if(playerScript.LedgeInfo.angle <= 50)
+            {
+                playerScript.playerOnLedge = false;
+                StartCoroutine(PerformParkourAction(jumpDownParkourAction));
+            }
         }
     }
 

@@ -22,8 +22,11 @@ public class PlayerScript : MonoBehaviour
     public LayerMask surfaceLayer;
     bool onSurface;
     public bool playerOnLedge { get; set; }
+    public LedgeInfo LedgeInfo { get; set; }
     [SerializeField] float fallingSpeed;
     [SerializeField] Vector3 moveDir;
+    [SerializeField] Vector3 requiredMoveDir;
+    Vector3 velocity;
 
     private void Update()
     {
@@ -32,23 +35,30 @@ public class PlayerScript : MonoBehaviour
         if (!playerControl)
             return;
 
-        if(onSurface)
+        velocity = Vector3.zero;
+
+        if (onSurface)
         {
             fallingSpeed = 0f;
+            velocity = moveDir * movementSpeed;
 
-            playerOnLedge = environmentChecker.CheckLedge(moveDir);
+            playerOnLedge = environmentChecker.CheckLedge(moveDir, out LedgeInfo ledgeInfo);
 
             if(playerOnLedge)
             {
+                LedgeInfo = ledgeInfo;
+                playerLedgeMovement();
                 Debug.Log("Player is on ledge");
             }
+
+            animator.SetFloat("movementValue", velocity.magnitude / movementSpeed, 0.2f, Time.deltaTime);
         }
         else
         {
             fallingSpeed += Physics.gravity.y * Time.deltaTime;
-        }
 
-        var velocity = moveDir * movementSpeed;
+            velocity = transform.forward * movementSpeed / 2;
+        }
         velocity.y = fallingSpeed;
         
         SurfaceCheck();
@@ -65,26 +75,35 @@ public class PlayerScript : MonoBehaviour
 
         var movementInput = (new Vector3(horizontal, 0, vertical)).normalized;
 
-        var movementDirection = MCC.flatRotation * movementInput;
+        requiredMoveDir = MCC.flatRotation * movementInput;
 
         if(CC.enabled)
-            CC.Move(movementDirection * movementSpeed * Time.deltaTime);
+            CC.Move(velocity * Time.deltaTime);
 
-        if (movementAmount > 0)
+        if (movementAmount > 0 && moveDir.magnitude > 0.2f)
         {
-            requiredRotation = Quaternion.LookRotation(movementDirection);
+            requiredRotation = Quaternion.LookRotation(moveDir);
         }
 
-        moveDir = movementDirection;
+        moveDir = requiredMoveDir;
 
         transform.rotation = Quaternion.RotateTowards(transform.rotation, requiredRotation, Time.deltaTime * rotSpeed);
-
-        animator.SetFloat("movementValue", movementAmount, 0.2f, Time.deltaTime);
     }
 
     void SurfaceCheck()
     {
         onSurface = Physics.CheckSphere(transform.TransformPoint(surfaceCheckOffset), surfaceCheckRadius, surfaceLayer);
+    }
+
+    void playerLedgeMovement()
+    {
+        float angle = Vector3.Angle(LedgeInfo.surfaceHit.normal, requiredMoveDir);
+
+        if(angle < 90)
+        {
+            velocity = Vector3.zero;
+            moveDir = Vector3.zero;
+        }
     }
 
     private void OnDrawGizmosSelected()
