@@ -123,4 +123,10 @@ public class PlayerScript : MonoBehaviour
             requiredRotation = transform.rotation;
         }
     }
+
+    public bool HasPlayerControl
+    {
+        get => playerControl;
+        set => playerControl = value;
+    }
 }
