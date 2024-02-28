@@ -11,6 +11,7 @@ public class PlayerScript : MonoBehaviour
     public float rotSpeed = 600f;
     Quaternion requiredRotation;
     bool playerControl = true;
+    public bool playerInAction { get; private set; }
 
     [Header("Player Animator")]
     public Animator animator;
@@ -112,6 +113,54 @@ public class PlayerScript : MonoBehaviour
         Gizmos.DrawSphere(transform.TransformPoint(surfaceCheckOffset), surfaceCheckRadius);
     }
 
+    public IEnumerator PerformAction(string AnimationName, CompareTargetParameter ctp, Quaternion RequiredRotation, 
+        bool LookAtObstacle = false, float ParkourActionDelay = 0f)
+    {
+        playerInAction = true;
+
+        animator.CrossFade(AnimationName, 0.2f);
+        yield return null;
+
+        var animationState = animator.GetNextAnimatorStateInfo(0);
+        if (!animationState.IsName(AnimationName))
+            Debug.Log("Animation Name is Incorrect");
+
+        float timerCounter = 0f;
+
+        while (timerCounter <= animationState.length)
+        {
+            timerCounter += Time.deltaTime;
+
+            //Make player to look towards the obstacle
+            if (LookAtObstacle)
+            {
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, RequiredRotation, rotSpeed);
+            }
+
+            if (ctp != null && !animator.IsInTransition(0))
+            {
+                CompareTarget(ctp);
+            }
+
+            if (animator.IsInTransition(0) && timerCounter > 0.5f)
+            {
+                break;
+            }
+
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(ParkourActionDelay);
+
+        playerInAction = false;
+    }
+    void CompareTarget(CompareTargetParameter compareTargetParameter)
+    {
+        animator.MatchTarget(compareTargetParameter.position, transform.rotation,
+            compareTargetParameter.bodyPart, new MatchTargetWeightMask(compareTargetParameter.positionWeight, 0),
+            compareTargetParameter.startTime, compareTargetParameter.endTime);
+    }
+
     public void SetControl(bool hasControl)
     {
         playerControl = hasControl;
@@ -129,4 +178,13 @@ public class PlayerScript : MonoBehaviour
         get => playerControl;
         set => playerControl = value;
     }
+}
+
+public class CompareTargetParameter
+{
+    public Vector3 position;
+    public AvatarTarget bodyPart;
+    public Vector3 positionWeight;
+    public float startTime;
+    public float endTime;
 }
