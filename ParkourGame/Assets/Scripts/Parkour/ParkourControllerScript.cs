@@ -9,7 +9,7 @@ public class ParkourControllerScript : MonoBehaviour
     public Animator animator;
     public PlayerScript playerScript;
     [SerializeField] NewParkourAction jumpDownParkourAction;
-
+    [SerializeField] NewParkourAction slideParkourAction;
     [Header("Parkour Action Area")]
     public List<NewParkourAction> newParkourActions;
 
@@ -18,6 +18,7 @@ public class ParkourControllerScript : MonoBehaviour
         if (Input.GetButton("Jump") && !playerScript.playerInAction)
         {
             var hitData = enviromentChecker.CheckObstacle();
+            var slideData = enviromentChecker.CheckSlide();
 
             if (hitData.hitFound)
             {
@@ -31,9 +32,16 @@ public class ParkourControllerScript : MonoBehaviour
                     }
                 }
             }
+
+            if (slideData.hitFound)
+            {
+                slideParkourAction.CheckLookAtObstacle(slideData);
+                playerScript.SlideInfo = slideData;
+                StartCoroutine(PerformParkourAction(slideParkourAction));
+            }
         }
 
-        if(playerScript.playerOnLedge && !playerScript.playerInAction && Input.GetButtonDown("Jump"))
+        if (playerScript.playerOnLedge && !playerScript.playerInAction && Input.GetButtonDown("Jump"))
         {
             if(playerScript.LedgeInfo.angle <= 50)
             {

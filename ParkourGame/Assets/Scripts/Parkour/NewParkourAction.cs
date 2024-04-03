@@ -53,6 +53,14 @@ public class NewParkourAction : ScriptableObject
         return true;
     }
 
+    public void CheckLookAtObstacle(SlideInfo slideInfo)
+    {
+        if (lookAtObstacle)
+        {
+            RequiredRotation = Quaternion.LookRotation(-slideInfo.hitInfo.normal);
+        }
+    }
+
     public string AnimationName => animationName;
     public bool LookAtObstacle => lookAtObstacle;
     public float ParkourActionDelay => parkourActionDelay;

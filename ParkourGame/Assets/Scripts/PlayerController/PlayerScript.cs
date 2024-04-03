@@ -25,14 +25,21 @@ public class PlayerScript : MonoBehaviour
     public bool playerOnLedge { get; set; }
     public bool playerHanging { get; set; }
     public LedgeInfo LedgeInfo { get; set; }
+    public SlideInfo SlideInfo { get; set; }
+
     [SerializeField] float fallingSpeed;
+    [SerializeField] float movementValueOffset = 0.04f;
     [SerializeField] Vector3 moveDir;
     [SerializeField] Vector3 requiredMoveDir;
     Vector3 velocity;
 
     private void Update()
     {
-        PlayerMovement();
+        if (!animator.GetBool("isSliding"))
+        {
+            PlayerMovement();
+        }
+        SetControlDuringSliding();
 
         if (!playerControl)
             return;
@@ -49,7 +56,7 @@ public class PlayerScript : MonoBehaviour
 
             playerOnLedge = environmentChecker.CheckLedge(moveDir, out LedgeInfo ledgeInfo);
 
-            if(playerOnLedge)
+            if (playerOnLedge)
             {
                 LedgeInfo = ledgeInfo;
                 playerLedgeMovement();
@@ -57,6 +64,11 @@ public class PlayerScript : MonoBehaviour
             }
 
             animator.SetFloat("movementValue", velocity.magnitude / movementSpeed, 0.2f, Time.deltaTime);
+
+            if(animator.GetFloat("movementValue") < movementValueOffset)
+            {
+                animator.SetFloat("movementValue", 0f);
+            }
         }
         else
         {
@@ -108,6 +120,17 @@ public class PlayerScript : MonoBehaviour
         {
             velocity = Vector3.zero;
             moveDir = Vector3.zero;
+        }
+    }
+
+    void SetControlDuringSliding()
+    {
+        if(animator.GetBool("isSliding"))
+        {
+            if(environmentChecker.CheckUpObstacleDuringSliding(SlideInfo, CC))
+            {
+                SetControl(true);
+            }
         }
     }
 

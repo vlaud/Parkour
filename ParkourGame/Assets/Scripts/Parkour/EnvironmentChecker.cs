@@ -18,6 +18,10 @@ public class EnvironmentChecker : MonoBehaviour
     [SerializeField] LayerMask climbingLayer;
     public int numberOfRays = 12;
 
+    [Header("Check Slide")]
+    public LayerMask slideLayer;
+    public Vector3 kneeRaycastOrigin = new Vector3(0, 1.5f, 0);
+
     public ObstacleInfo CheckObstacle()
     {
         var hitData = new ObstacleInfo();
@@ -36,6 +40,37 @@ public class EnvironmentChecker : MonoBehaviour
         }
 
         return hitData;
+    }
+
+    public SlideInfo CheckSlide()
+    {
+        var hitData = new SlideInfo();
+
+        var rayOrigin = transform.position + kneeRaycastOrigin;
+        hitData.hitFound = Physics.Raycast(rayOrigin, transform.forward, out hitData.hitInfo, rayLength, slideLayer);
+
+        Debug.DrawRay(rayOrigin, transform.forward * rayLength, (hitData.hitFound) ? Color.red : Color.green);
+
+        return hitData;
+    }
+
+    public bool CheckUpObstacleDuringSliding(SlideInfo slideInfo, CharacterController cc)
+    {
+        Vector3 rayOrigin = transform.position + -transform.forward * cc.radius;
+        bool isSliding = Physics.Raycast(rayOrigin, Vector3.up, heightRayLength, slideLayer);
+
+        Debug.DrawRay(rayOrigin, transform.up * heightRayLength, (isSliding) ? Color.red : Color.green);
+
+        if (!isSliding)
+        {
+            Vector3 directionToTarget = (slideInfo.hitInfo.transform.position - transform.position).normalized;
+            if (Vector3.Angle(transform.forward, directionToTarget) > 90f)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public bool CheckLedge(Vector3 movementDirection, out LedgeInfo ledgeInfo)
@@ -105,4 +140,10 @@ public struct LedgeInfo
     public float angle;
     public float height;
     public RaycastHit surfaceHit;
+}
+
+public struct SlideInfo
+{
+    public bool hitFound;
+    public RaycastHit hitInfo;
 }
