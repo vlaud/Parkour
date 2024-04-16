@@ -7,6 +7,8 @@ public class ClimbingController : MonoBehaviour
     EnvironmentChecker ec;
     public PlayerScript playerScript;
 
+    ClimbingPoint currentClimbPoint;
+
     public float InOutValue;
     public float UpDownValue;
     public float LeftRightValue;
@@ -24,14 +26,49 @@ public class ClimbingController : MonoBehaviour
             {
                 if (ec.CheckClimbing(transform.forward, out RaycastHit climbInfo))
                 {
+                    currentClimbPoint = climbInfo.transform.GetComponent<ClimbingPoint>();
+
                     playerScript.SetControl(false);
-                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 54f));
+                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 0.54f));
                 }
             }
         }
         else
         {
             //Ledge to Ledge parkour actions
+
+            float horizontal = Mathf.Round(Input.GetAxisRaw("Horizontal"));
+            float vertical = Mathf.Round(Input.GetAxisRaw("Vertical"));
+
+            var inputDirection = new Vector2(horizontal, vertical);
+
+            if (playerScript.playerInAction || inputDirection == Vector2.zero) return;
+
+            var neighbour = currentClimbPoint.GetNeighbour(inputDirection);
+
+            if (neighbour == null) return;
+
+            if (neighbour.connetionType == ConnetionType.Jump && Input.GetButton("Jump"))
+            {
+                currentClimbPoint = neighbour.climbingPoint;
+
+                if (neighbour.pointDirection.y == 1)
+                {
+                    StartCoroutine(ClimbToLedge("ClimbUp", currentClimbPoint.transform, 0.34f, 0.64f));
+                }
+                else if (neighbour.pointDirection.y == -1)
+                {
+                    StartCoroutine(ClimbToLedge("ClimbDown", currentClimbPoint.transform, 0.31f, 0.68f));
+                }
+                else if (neighbour.pointDirection.x == 1)
+                {
+                    StartCoroutine(ClimbToLedge("ClimbRight", currentClimbPoint.transform, 0.20f, 0.51f));
+                }
+                else if (neighbour.pointDirection.x == -1)
+                {
+                    StartCoroutine(ClimbToLedge("ClimbLeft", currentClimbPoint.transform, 0.20f, 0.51f));
+                }
+            }
         }
     }
 

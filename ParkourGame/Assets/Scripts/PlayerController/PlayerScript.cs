@@ -35,10 +35,6 @@ public class PlayerScript : MonoBehaviour
 
     private void Update()
     {
-        if (!animator.GetBool("isSliding"))
-        {
-            PlayerMovement();
-        }
         SetControlDuringSliding();
 
         if (!playerControl)
@@ -77,6 +73,11 @@ public class PlayerScript : MonoBehaviour
             velocity = transform.forward * movementSpeed / 2;
         }
         velocity.y = fallingSpeed;
+
+        if (!animator.GetBool("isSliding"))
+        {
+            PlayerMovement();
+        }
         
         SurfaceCheck();
         animator.SetBool("onSurface", onSurface);

@@ -30,6 +30,23 @@ public class ClimbingPoint : MonoBehaviour
         neighbours.Add(neighbour);
     }
 
+    public Neighbour GetNeighbour(Vector2 climbDirection)
+    {
+        Neighbour neighbour = null;
+
+        if (climbDirection.y != 0)
+        {
+            neighbour = neighbours.FirstOrDefault(n => n.pointDirection.y == climbDirection.y);
+        }
+
+        if (neighbour == null && climbDirection.x != 0)
+        {
+            neighbour = neighbours.FirstOrDefault(n => n.pointDirection.x == climbDirection.x);
+        }
+
+        return neighbour;
+    }
+
     private void OnDrawGizmos()
     {
         Debug.DrawRay(transform.position, transform.forward, Color.blue);
