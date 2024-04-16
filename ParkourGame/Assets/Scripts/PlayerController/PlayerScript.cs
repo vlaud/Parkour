@@ -146,7 +146,7 @@ public class PlayerScript : MonoBehaviour
     {
         playerInAction = true;
 
-        animator.CrossFade(AnimationName, 0.2f);
+        animator.CrossFadeInFixedTime(AnimationName, 0.2f);
         yield return null;
 
         var animationState = animator.GetNextAnimatorStateInfo(0);

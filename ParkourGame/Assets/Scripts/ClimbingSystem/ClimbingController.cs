@@ -9,9 +9,9 @@ public class ClimbingController : MonoBehaviour
 
     ClimbingPoint currentClimbPoint;
 
-    public float InOutValue;
-    public float UpDownValue;
-    public float LeftRightValue;
+    private float InOutValue;
+    private float UpDownValue;
+    private float LeftRightValue;
 
     private void Awake()
     {
@@ -29,7 +29,11 @@ public class ClimbingController : MonoBehaviour
                     currentClimbPoint = climbInfo.transform.GetComponent<ClimbingPoint>();
 
                     playerScript.SetControl(false);
-                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 0.54f));
+                    InOutValue = -0.23f;
+                    UpDownValue = -0.09f;
+                    LeftRightValue = 0.15f;
+                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 54f,
+                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
             }
         }
@@ -54,11 +58,19 @@ public class ClimbingController : MonoBehaviour
 
                 if (neighbour.pointDirection.y == 1)
                 {
-                    StartCoroutine(ClimbToLedge("ClimbUp", currentClimbPoint.transform, 0.34f, 0.64f));
+                    InOutValue = 0.1f;
+                    UpDownValue = 0.05f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("ClimbUp", currentClimbPoint.transform, 0.34f, 0.64f, 
+                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
                 else if (neighbour.pointDirection.y == -1)
                 {
-                    StartCoroutine(ClimbToLedge("ClimbDown", currentClimbPoint.transform, 0.31f, 0.68f));
+                    InOutValue = 0.2f;
+                    UpDownValue = 0.05f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("ClimbDown", currentClimbPoint.transform, 0.31f, 0.68f,
+                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
                 else if (neighbour.pointDirection.x == 1)
                 {
@@ -66,18 +78,44 @@ public class ClimbingController : MonoBehaviour
                 }
                 else if (neighbour.pointDirection.x == -1)
                 {
-                    StartCoroutine(ClimbToLedge("ClimbLeft", currentClimbPoint.transform, 0.20f, 0.51f));
+                    InOutValue = 0.1f;
+                    UpDownValue = 0.04f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("ClimbLeft", currentClimbPoint.transform, 0.20f, 0.51f,
+                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                }
+            }
+            else if (neighbour.connetionType == ConnetionType.Move)
+            {
+                currentClimbPoint = neighbour.climbingPoint;
+
+                if (neighbour.pointDirection.x == 1)
+                {
+                    InOutValue = 0.2f;
+                    UpDownValue = 0.03f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("ShimmyRight", currentClimbPoint.transform, 0f, 0.30f,
+                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                }
+                else if (neighbour.pointDirection.x == -1)
+                {
+                    InOutValue = 0.2f;
+                    UpDownValue = 0.03f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("ShimmyLeft", currentClimbPoint.transform, 0f, 0.30f, 
+                        AvatarTarget.LeftHand, new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
             }
         }
     }
 
-    IEnumerator ClimbToLedge(string animationName, Transform ledgePoint, float compareStartTime, float compareEndTime)
+    IEnumerator ClimbToLedge(string animationName, Transform ledgePoint, float compareStartTime, float compareEndTime, 
+        AvatarTarget hand = AvatarTarget.RightHand, Vector3? playerHandOffset = null)
     {
         var compareParams = new CompareTargetParameter()
         {
-            position = SetHandPosition(ledgePoint),
-            bodyPart = AvatarTarget.RightHand,
+            position = SetHandPosition(ledgePoint, hand, playerHandOffset),
+            bodyPart = hand,
             positionWeight = Vector3.one,
             startTime = compareStartTime,
             endTime = compareEndTime
@@ -90,12 +128,11 @@ public class ClimbingController : MonoBehaviour
         playerScript.playerHanging = true;
     }
 
-    Vector3 SetHandPosition(Transform ledge)
+    Vector3 SetHandPosition(Transform ledge, AvatarTarget hand, Vector3? playerHandOffset)
     {
-        //InOutValue = -0.23f;
-        //UpDownValue = -0.09f;
-        //LeftRightValue = 0.20f;
-
-        return ledge.position + ledge.forward * InOutValue + Vector3.up * UpDownValue - ledge.right * LeftRightValue;
+        var offsetValue = (playerHandOffset != null) ? playerHandOffset.Value : new Vector3(InOutValue, UpDownValue, LeftRightValue);
+        
+        var handDirection = (hand == AvatarTarget.RightHand) ? ledge.right : -ledge.right;
+        return ledge.position + ledge.forward * InOutValue + Vector3.up * UpDownValue - handDirection * LeftRightValue;
     }
 }
