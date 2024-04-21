@@ -153,14 +153,17 @@ public class PlayerScript : MonoBehaviour
         if (!animationState.IsName(AnimationName))
             Debug.Log("Animation Name is Incorrect");
 
+        float rotateStartTime = (ctp != null) ? ctp.startTime : 0f;
         float timerCounter = 0f;
 
         while (timerCounter <= animationState.length)
         {
             timerCounter += Time.deltaTime;
 
+            float normalizedTimerCounter = timerCounter / animationState.length;
+
             //Make player to look towards the obstacle
-            if (LookAtObstacle)
+            if (LookAtObstacle && normalizedTimerCounter > rotateStartTime)
             {
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, RequiredRotation, rotSpeed);
             }
