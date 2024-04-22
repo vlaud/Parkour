@@ -39,12 +39,12 @@ public class ClimbingController : MonoBehaviour
         }
         else
         {
+            //leave climb point
             if(Input.GetButton("Leave") && !playerScript.playerInAction)
             {
                 StartCoroutine(JumpFromWall());
                 return;
             }
-            //Ledge to Ledge parkour actions
 
             float horizontal = Mathf.Round(Input.GetAxisRaw("Horizontal"));
             float vertical = Mathf.Round(Input.GetAxisRaw("Vertical"));
@@ -53,6 +53,14 @@ public class ClimbingController : MonoBehaviour
 
             if (playerScript.playerInAction || inputDirection == Vector2.zero) return;
 
+            //climb to top
+            if(currentClimbPoint.MountPoint && inputDirection.y == 1)
+            {
+                StartCoroutine(ClimbToTop());
+                return;
+            }
+
+            //Ledge to Ledge parkour actions
             var neighbour = currentClimbPoint.GetNeighbour(inputDirection);
 
             if (neighbour == null) return;
@@ -145,6 +153,19 @@ public class ClimbingController : MonoBehaviour
     {
         playerScript.playerHanging = false;
         yield return playerScript.PerformAction("JumpFromWall");
+        playerScript.ResetRequiredRotation();
+        playerScript.SetControl(true);
+    }
+
+    IEnumerator ClimbToTop()
+    {
+        playerScript.playerHanging = false;
+        yield return playerScript.PerformAction("ClimbToTop");
+
+        playerScript.EnableCC(true);
+
+        yield return new WaitForSeconds(0.5f);
+
         playerScript.ResetRequiredRotation();
         playerScript.SetControl(true);
     }

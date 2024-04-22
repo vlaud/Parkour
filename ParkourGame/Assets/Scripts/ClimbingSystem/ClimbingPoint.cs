@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class ClimbingPoint : MonoBehaviour
 {
+    public bool MountPoint;
     public List<Neighbour> neighbours;
 
     private void Awake()
