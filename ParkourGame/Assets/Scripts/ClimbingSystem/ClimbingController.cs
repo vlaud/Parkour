@@ -39,6 +39,11 @@ public class ClimbingController : MonoBehaviour
         }
         else
         {
+            if(Input.GetButton("Leave") && !playerScript.playerInAction)
+            {
+                StartCoroutine(JumpFromWall());
+                return;
+            }
             //Ledge to Ledge parkour actions
 
             float horizontal = Mathf.Round(Input.GetAxisRaw("Horizontal"));
@@ -134,5 +139,13 @@ public class ClimbingController : MonoBehaviour
         
         var handDirection = (hand == AvatarTarget.RightHand) ? ledge.right : -ledge.right;
         return ledge.position + ledge.forward * InOutValue + Vector3.up * UpDownValue - handDirection * LeftRightValue;
+    }
+
+    IEnumerator JumpFromWall()
+    {
+        playerScript.playerHanging = false;
+        yield return playerScript.PerformAction("JumpFromWall");
+        playerScript.ResetRequiredRotation();
+        playerScript.SetControl(true);
     }
 }
