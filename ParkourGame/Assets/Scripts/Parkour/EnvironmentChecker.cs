@@ -132,8 +132,13 @@ public class EnvironmentChecker : MonoBehaviour
 
         var origin = transform.position + Vector3.down * 0.1f + transform.forward * 2f;
 
-        if (Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer))
+        if (Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer | obstacleLayer))
         {
+            Debug.Log(hit.transform.gameObject);
+            if ((obstacleLayer & 1 << hit.transform.gameObject.layer) != 0)
+            {
+                return false;
+            }
             DropHit = hit;
             return true;
         }
