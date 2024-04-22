@@ -36,11 +36,26 @@ public class ClimbingController : MonoBehaviour
                         playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
             }
+
+            if (Input.GetButton("Leave") && !playerScript.playerInAction)
+            {
+                if (ec.CheckDropClimbPoint(out RaycastHit DropHit))
+                {
+                    currentClimbPoint = GetNearestClimbingPoint(DropHit.transform, DropHit.point);
+
+                    playerScript.SetControl(false);
+                    InOutValue = 0.1f;
+                    UpDownValue = -0.44f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("DropToFreehang", currentClimbPoint.transform, 0.41f, 0.54f,
+                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                }
+            }
         }
         else
         {
             //leave climb point
-            if(Input.GetButton("Leave") && !playerScript.playerInAction)
+            if (Input.GetButton("Leave") && !playerScript.playerInAction)
             {
                 StartCoroutine(JumpFromWall());
                 return;
@@ -54,7 +69,7 @@ public class ClimbingController : MonoBehaviour
             if (playerScript.playerInAction || inputDirection == Vector2.zero) return;
 
             //climb to top
-            if(currentClimbPoint.MountPoint && inputDirection.y == 1)
+            if (currentClimbPoint.MountPoint && inputDirection.y == 1)
             {
                 StartCoroutine(ClimbToTop());
                 return;
@@ -74,7 +89,7 @@ public class ClimbingController : MonoBehaviour
                     InOutValue = 0.1f;
                     UpDownValue = 0.05f;
                     LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ClimbUp", currentClimbPoint.transform, 0.34f, 0.64f, 
+                    StartCoroutine(ClimbToLedge("ClimbUp", currentClimbPoint.transform, 0.34f, 0.64f,
                         playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
                 else if (neighbour.pointDirection.y == -1)
@@ -115,14 +130,14 @@ public class ClimbingController : MonoBehaviour
                     InOutValue = 0.2f;
                     UpDownValue = 0.03f;
                     LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ShimmyLeft", currentClimbPoint.transform, 0f, 0.30f, 
+                    StartCoroutine(ClimbToLedge("ShimmyLeft", currentClimbPoint.transform, 0f, 0.30f,
                         AvatarTarget.LeftHand, new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
             }
         }
     }
 
-    IEnumerator ClimbToLedge(string animationName, Transform ledgePoint, float compareStartTime, float compareEndTime, 
+    IEnumerator ClimbToLedge(string animationName, Transform ledgePoint, float compareStartTime, float compareEndTime,
         AvatarTarget hand = AvatarTarget.RightHand, Vector3? playerHandOffset = null)
     {
         var compareParams = new CompareTargetParameter()
@@ -144,7 +159,7 @@ public class ClimbingController : MonoBehaviour
     Vector3 SetHandPosition(Transform ledge, AvatarTarget hand, Vector3? playerHandOffset)
     {
         var offsetValue = (playerHandOffset != null) ? playerHandOffset.Value : new Vector3(InOutValue, UpDownValue, LeftRightValue);
-        
+
         var handDirection = (hand == AvatarTarget.RightHand) ? ledge.right : -ledge.right;
         return ledge.position + ledge.forward * InOutValue + Vector3.up * UpDownValue - handDirection * LeftRightValue;
     }
@@ -168,5 +183,27 @@ public class ClimbingController : MonoBehaviour
 
         playerScript.ResetRequiredRotation();
         playerScript.SetControl(true);
+    }
+
+    ClimbingPoint GetNearestClimbingPoint(Transform dropClimbPoint, Vector3 hitPoint)
+    {
+        var points = dropClimbPoint.GetComponentsInChildren<ClimbingPoint>();
+
+        ClimbingPoint nearestPoint = null;
+
+        float nearestPointDistance = Mathf.Infinity;
+
+        foreach (var point in points)
+        {
+            float distance = Vector3.Distance(point.transform.position, hitPoint);
+
+            if (distance < nearestPointDistance)
+            {
+                nearestPoint = point;
+                nearestPointDistance = distance;
+            }
+        }
+
+        return nearestPoint;
     }
 }

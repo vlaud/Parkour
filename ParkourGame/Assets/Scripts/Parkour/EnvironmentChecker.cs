@@ -125,6 +125,21 @@ public class EnvironmentChecker : MonoBehaviour
 
         return false;
     }
+
+    public bool CheckDropClimbPoint(out RaycastHit DropHit)
+    {
+        DropHit = new RaycastHit();
+
+        var origin = transform.position + Vector3.down * 0.1f + transform.forward * 2f;
+
+        if (Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer))
+        {
+            DropHit = hit;
+            return true;
+        }
+
+        return false;
+    }
 }
 
 public struct ObstacleInfo
