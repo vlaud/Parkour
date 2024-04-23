@@ -36,6 +36,7 @@ public class ParkourControllerScript : MonoBehaviour
             if (slideData.hitFound)
             {
                 slideParkourAction.CheckLookAtObstacle(slideData);
+                slideParkourAction.CheckSlidingGapAvailable(slideData, transform);
                 playerScript.SlideInfo = slideData;
                 StartCoroutine(PerformParkourAction(slideParkourAction));
             }

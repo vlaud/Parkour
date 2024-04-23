@@ -31,7 +31,7 @@ public class EnvironmentChecker : MonoBehaviour
 
         Debug.DrawRay(rayOrigin, transform.forward * rayLength, (hitData.hitFound) ? Color.red : Color.green);
 
-        if(hitData.hitFound)
+        if (hitData.hitFound)
         {
             var heightOrigin = hitData.hitInfo.point + Vector3.up * heightRayLength;
             hitData.heightHitFound = Physics.Raycast(heightOrigin, Vector3.down, out hitData.heightInfo, heightRayLength, obstacleLayer);
@@ -50,6 +50,17 @@ public class EnvironmentChecker : MonoBehaviour
         hitData.hitFound = Physics.Raycast(rayOrigin, transform.forward, out hitData.hitInfo, rayLength, slideLayer);
 
         Debug.DrawRay(rayOrigin, transform.forward * rayLength, (hitData.hitFound) ? Color.red : Color.green);
+
+        if (hitData.hitFound)
+        {
+            Vector3 groundOrigin = hitData.hitInfo.point;
+            Vector3 temp = transform.position + rayOffset;
+            groundOrigin.y = temp.y;
+
+            hitData.gapFound = Physics.Raycast(groundOrigin, Vector3.up, out hitData.gapInfo, heightRayLength, slideLayer);
+
+            Debug.DrawRay(groundOrigin, Vector3.up * heightRayLength, (hitData.gapFound) ? Color.blue : Color.green);
+        }
 
         return hitData;
     }
@@ -82,12 +93,12 @@ public class EnvironmentChecker : MonoBehaviour
         float ledgeOriginOffset = 0.5f;
         var ledgeOrigin = transform.position + movementDirection * ledgeOriginOffset + Vector3.up;
 
-        if(Physics.Raycast(ledgeOrigin, Vector3.down, out RaycastHit hit, ledgeRayLength, obstacleLayer))
+        if (Physics.Raycast(ledgeOrigin, Vector3.down, out RaycastHit hit, ledgeRayLength, obstacleLayer))
         {
             Debug.DrawRay(ledgeOrigin, Vector3.down * ledgeRayLength, Color.blue);
 
             var surfaceRaycastOrigin = transform.position + movementDirection - new Vector3(0, 0.1f, 0);
-            if(Physics.Raycast(surfaceRaycastOrigin, -movementDirection, out RaycastHit surfaceHit, 2, obstacleLayer))
+            if (Physics.Raycast(surfaceRaycastOrigin, -movementDirection, out RaycastHit surfaceHit, 2, obstacleLayer))
             {
                 float LedgeHeight = transform.position.y - hit.point.y;
 
@@ -113,10 +124,10 @@ public class EnvironmentChecker : MonoBehaviour
         var climbOrigin = transform.position + Vector3.up * 1.5f;
         var climbOffset = new Vector3(0, 0.19f, 0);
 
-        for(int i = 0; i < numberOfRays; i++)
+        for (int i = 0; i < numberOfRays; i++)
         {
             Debug.DrawRay(climbOrigin + climbOffset * i, climbDirection, Color.red);
-            if(Physics.Raycast(climbOrigin + climbOffset * i, climbDirection, out RaycastHit hit, climbingRayLength, climbingLayer))
+            if (Physics.Raycast(climbOrigin + climbOffset * i, climbDirection, out RaycastHit hit, climbingRayLength, climbingLayer))
             {
                 climbInfo = hit;
                 return true;
@@ -165,5 +176,7 @@ public struct LedgeInfo
 public struct SlideInfo
 {
     public bool hitFound;
+    public bool gapFound;
     public RaycastHit hitInfo;
+    public RaycastHit gapInfo;
 }

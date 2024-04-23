@@ -53,6 +53,14 @@ public class NewParkourAction : ScriptableObject
         return true;
     }
 
+    public void CheckSlidingGapAvailable(SlideInfo slideInfo, Transform player)
+    {
+        float checkHeight = slideInfo.gapInfo.point.y - player.position.y;
+        Debug.Log(slideInfo.gapInfo.transform.gameObject);
+
+        Debug.Log(checkHeight);
+    }
+
     public void CheckLookAtObstacle(SlideInfo slideInfo)
     {
         if (lookAtObstacle)
