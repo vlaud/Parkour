@@ -29,10 +29,10 @@ public class ClimbingController : MonoBehaviour
                     currentClimbPoint = climbInfo.transform.GetComponent<ClimbingPoint>();
 
                     playerScript.SetControl(false);
-                    InOutValue = -0.23f;
-                    UpDownValue = -0.09f;
-                    LeftRightValue = 0.15f;
-                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 54f,
+                    InOutValue = -0.05f;
+                    UpDownValue = -0.6f;
+                    LeftRightValue = 0.25f;
+                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 0.54f,
                         playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
                 }
             }
