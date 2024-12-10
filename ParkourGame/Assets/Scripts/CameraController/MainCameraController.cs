@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
+using Unity.Cinemachine;
 
 public class MainCameraController : MonoBehaviour
 {
-    public CinemachineVirtualCamera vcam;
+    public CinemachineCamera vcam;
     public float rotationY;
 
     private void Start()
@@ -18,7 +18,7 @@ public class MainCameraController : MonoBehaviour
         var state = vcam.State;
 
         // Extract the rotation quaternion from the state
-        var rotation = state.FinalOrientation;
+        var rotation = state.GetFinalOrientation();
 
         // Convert the rotation to Euler angles
         var euler = rotation.eulerAngles;
