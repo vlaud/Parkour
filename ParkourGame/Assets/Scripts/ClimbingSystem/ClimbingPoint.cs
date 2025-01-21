@@ -13,7 +13,10 @@ public class ClimbingPoint : MonoBehaviour
         var twoWayClimbNeighbour = neighbours.Where(n => n.isPointTwoWay);
         foreach (var neighbour in twoWayClimbNeighbour)
         {
-            neighbour.climbingPoint?.CreatePointConnection(this, -neighbour.pointDirection, neighbour.connetionType, neighbour.isPointTwoWay);
+            if (!neighbour.isVisited)
+            {
+                neighbour.climbingPoint?.CreatePointConnection(this, -neighbour.pointDirection, neighbour.connetionType, neighbour.isPointTwoWay);
+            }
         }
     }
 
@@ -25,7 +28,8 @@ public class ClimbingPoint : MonoBehaviour
             climbingPoint = climbingPoint,
             pointDirection = pointDirection,
             connetionType = connetionType,
-            isPointTwoWay = isPointTwoWay
+            isPointTwoWay = isPointTwoWay,
+            isVisited = true
         };
 
         neighbours.Add(neighbour);
@@ -66,6 +70,7 @@ public class Neighbour
     public Vector2 pointDirection;
     public ConnetionType connetionType;
     public bool isPointTwoWay = true;
+    public bool isVisited = false;
 }
 
 public enum ConnetionType { Jump, Move }
