@@ -35,10 +35,11 @@ public class ParkourControllerScript : MonoBehaviour
 
             if (slideData.hitFound)
             {
-                slideParkourAction.CheckLookAtObstacle(slideData);
-                slideParkourAction.CheckSlidingGapAvailable(slideData, transform);
-                playerScript.SlideInfo = slideData;
-                StartCoroutine(PerformParkourAction(slideParkourAction));
+                if (slideParkourAction.CheckIfSlidingGapAvailable(slideData, transform))
+                {
+                    playerScript.SlideInfo = slideData;
+                    StartCoroutine(PerformParkourAction(slideParkourAction));
+                }
             }
         }
 
@@ -73,12 +74,5 @@ public class ParkourControllerScript : MonoBehaviour
             action.LookAtObstacle, action.ParkourActionDelay);
 
         playerScript.SetControl(true);
-    }
-
-    void CompareTarget(NewParkourAction action)
-    {
-        animator.MatchTarget(action.ComparePosition, transform.rotation,
-            action.CompareBodyPart, new MatchTargetWeightMask(action.ComparePositionWeight, 0),
-            action.CompareStartTime, action.CompareEndTime);
     }
 }

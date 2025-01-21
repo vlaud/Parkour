@@ -59,7 +59,8 @@ public class EnvironmentChecker : MonoBehaviour
 
             hitData.gapFound = Physics.Raycast(groundOrigin, Vector3.up, out hitData.gapInfo, heightRayLength, slideLayer);
 
-            Debug.DrawRay(groundOrigin, Vector3.up * heightRayLength, (hitData.gapFound) ? Color.blue : Color.green);
+            float tempLength = (hitData.gapFound) ? hitData.gapInfo.point.y - groundOrigin.y : heightRayLength;
+            Debug.DrawRay(groundOrigin, Vector3.up * tempLength, (hitData.gapFound) ? Color.blue : Color.green);
         }
 
         return hitData;
@@ -126,7 +127,7 @@ public class EnvironmentChecker : MonoBehaviour
 
         for (int i = 0; i < numberOfRays; i++)
         {
-            Debug.DrawRay(climbOrigin + climbOffset * i, climbDirection, Color.red);
+            Debug.DrawRay(climbOrigin + climbOffset * i, climbingRayLength * climbDirection, Color.red);
             if (Physics.Raycast(climbOrigin + climbOffset * i, climbDirection, out RaycastHit hit, climbingRayLength, climbingLayer))
             {
                 climbInfo = hit;
@@ -143,13 +144,11 @@ public class EnvironmentChecker : MonoBehaviour
 
         var origin = transform.position + Vector3.down * 0.1f + transform.forward * 2f;
 
+        Debug.DrawRay(origin, -transform.forward * 3f, Color.red);
         if (Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer | obstacleLayer))
         {
-            Debug.Log(hit.transform.gameObject);
-            if ((obstacleLayer & 1 << hit.transform.gameObject.layer) != 0)
-            {
-                return false;
-            }
+            if ((obstacleLayer & 1 << hit.transform.gameObject.layer) != 0) return false;
+            
             DropHit = hit;
             return true;
         }

@@ -61,7 +61,7 @@ public class PlayerScript : MonoBehaviour
 
             animator.SetFloat("movementValue", velocity.magnitude / movementSpeed, 0.2f, Time.deltaTime);
 
-            if(animator.GetFloat("movementValue") < movementValueOffset)
+            if (animator.GetFloat("movementValue") < movementValueOffset)
             {
                 animator.SetFloat("movementValue", 0f);
             }
@@ -78,7 +78,7 @@ public class PlayerScript : MonoBehaviour
         {
             PlayerMovement();
         }
-        
+
         SurfaceCheck();
         animator.SetBool("onSurface", onSurface);
         Debug.Log("Player on Surface" + onSurface);
@@ -95,7 +95,7 @@ public class PlayerScript : MonoBehaviour
 
         requiredMoveDir = MCC.flatRotation * movementInput;
 
-        if(CC.enabled)
+        if (CC.enabled)
             CC.Move(velocity * Time.deltaTime);
 
         if (movementAmount > 0 && moveDir.magnitude > 0.2f)
@@ -117,7 +117,7 @@ public class PlayerScript : MonoBehaviour
     {
         float angle = Vector3.Angle(LedgeInfo.surfaceHit.normal, requiredMoveDir);
 
-        if(angle < 90)
+        if (angle < 90)
         {
             velocity = Vector3.zero;
             moveDir = Vector3.zero;
@@ -126,9 +126,9 @@ public class PlayerScript : MonoBehaviour
 
     void SetControlDuringSliding()
     {
-        if(animator.GetBool("isSliding"))
+        if (animator.GetBool("isSliding"))
         {
-            if(environmentChecker.CheckUpObstacleDuringSliding(SlideInfo, CC))
+            if (environmentChecker.CheckUpObstacleDuringSliding(SlideInfo, CC))
             {
                 SetControl(true);
             }
@@ -141,7 +141,7 @@ public class PlayerScript : MonoBehaviour
         Gizmos.DrawSphere(transform.TransformPoint(surfaceCheckOffset), surfaceCheckRadius);
     }
 
-    public IEnumerator PerformAction(string AnimationName, CompareTargetParameter ctp = null, 
+    public IEnumerator PerformAction(string AnimationName, CompareTargetParameter ctp = null,
         Quaternion RequiredRotation = new Quaternion(), bool LookAtObstacle = false, float ParkourActionDelay = 0f)
     {
         playerInAction = true;
@@ -185,6 +185,7 @@ public class PlayerScript : MonoBehaviour
 
         playerInAction = false;
     }
+
     void CompareTarget(CompareTargetParameter compareTargetParameter)
     {
         animator.MatchTarget(compareTargetParameter.position, transform.rotation,
@@ -197,7 +198,7 @@ public class PlayerScript : MonoBehaviour
         playerControl = hasControl;
         CC.enabled = hasControl;
 
-        if(!hasControl)
+        if (!hasControl)
         {
             animator.SetFloat("movementValue", 0f);
             requiredRotation = transform.rotation;

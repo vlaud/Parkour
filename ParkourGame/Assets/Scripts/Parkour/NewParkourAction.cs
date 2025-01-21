@@ -28,7 +28,7 @@ public class NewParkourAction : ScriptableObject
 
     public bool CheckIfAvailable(ObstacleInfo hitData, Transform player)
     {
-        if(!string.IsNullOrEmpty(barrierTag) && hitData.hitInfo.transform.tag != barrierTag)
+        if (!string.IsNullOrEmpty(barrierTag) && hitData.hitInfo.transform.tag != barrierTag)
         {
             return false;
         }
@@ -45,7 +45,7 @@ public class NewParkourAction : ScriptableObject
             RequiredRotation = Quaternion.LookRotation(-hitData.hitInfo.normal);
         }
 
-        if(allowTargetMatching)
+        if (allowTargetMatching)
         {
             ComparePosition = hitData.heightInfo.point;
         }
@@ -53,21 +53,31 @@ public class NewParkourAction : ScriptableObject
         return true;
     }
 
-    public void CheckSlidingGapAvailable(SlideInfo slideInfo, Transform player)
+    public bool CheckIfSlidingGapAvailable(SlideInfo slideInfo, Transform player)
     {
         float checkHeight = slideInfo.gapInfo.point.y - player.position.y;
+
         Debug.Log(slideInfo.gapInfo.transform.gameObject);
-
         Debug.Log(checkHeight);
-    }
 
-    public void CheckLookAtObstacle(SlideInfo slideInfo)
-    {
+        if (checkHeight < minimumHeight || checkHeight > maximumHeight)
+        {
+            return false;
+        }
+
         if (lookAtObstacle)
         {
             RequiredRotation = Quaternion.LookRotation(-slideInfo.hitInfo.normal);
         }
+
+        if (allowTargetMatching)
+        {
+            ComparePosition = slideInfo.gapInfo.point;
+        }
+
+        return true;
     }
+
 
     public string AnimationName => animationName;
     public bool LookAtObstacle => lookAtObstacle;
