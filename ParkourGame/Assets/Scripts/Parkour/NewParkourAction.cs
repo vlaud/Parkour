@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Parkour Menu/Create New Parkour Action")]
@@ -57,7 +55,7 @@ public class NewParkourAction : ScriptableObject
     {
         float checkHeight = slideInfo.gapInfo.point.y - player.position.y;
 
-        Debug.Log(slideInfo.gapInfo.transform.gameObject);
+        if (slideInfo.gapFound) Debug.Log(slideInfo.gapInfo.transform.gameObject);
         Debug.Log(checkHeight);
 
         if (checkHeight < minimumHeight || checkHeight > maximumHeight)

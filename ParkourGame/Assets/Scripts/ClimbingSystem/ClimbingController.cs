@@ -4,10 +4,22 @@ using UnityEngine;
 
 public class ClimbingController : MonoBehaviour
 {
+    public enum DIR
+    {
+        LEFT, RIGHT, UP, DOWN
+    }
+    
     EnvironmentChecker ec;
     public PlayerScript playerScript;
 
-    ClimbingPoint currentClimbPoint;
+    [Header("Climbing Action Area")]
+    [SerializeField] NewClimbAction currentClimbAction;
+    [SerializeField] NewClimbAction IdleToClimb;
+    [SerializeField] NewClimbAction DropToFreehang;
+    [SerializeField] SerializableDictionary<DIR, NewClimbAction> ClimbActions;
+    [SerializeField] SerializableDictionary<DIR, NewClimbAction> ShimmyActions;
+    [SerializeField] ClimbingPoint currentClimbPoint;
+    [SerializeField] ClimbingPoint tempCheckPoint;
 
     private float InOutValue;
     private float UpDownValue;
@@ -20,6 +32,16 @@ public class ClimbingController : MonoBehaviour
 
     private void Update()
     {
+        if (ec.CheckDropClimbPoint(out RaycastHit checkHit))
+        {
+            tempCheckPoint = GetNearestClimbingPoint(checkHit.transform, checkHit.point);
+            Debug.Log($"checkHit : {tempCheckPoint}");
+        }
+        else
+        {
+            tempCheckPoint = null;
+        }
+
         if (!playerScript.playerHanging)
         {
             if (Input.GetButton("Jump") && !playerScript.playerInAction)
@@ -29,11 +51,7 @@ public class ClimbingController : MonoBehaviour
                     currentClimbPoint = climbInfo.transform.GetComponent<ClimbingPoint>();
 
                     playerScript.SetControl(false);
-                    InOutValue = -0.05f;
-                    UpDownValue = -0.6f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("IdleToClimb", climbInfo.transform, 0.40f, 0.54f,
-                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(IdleToClimb, climbInfo.transform);
                 }
             }
 
@@ -42,13 +60,9 @@ public class ClimbingController : MonoBehaviour
                 if (ec.CheckDropClimbPoint(out RaycastHit DropHit))
                 {
                     currentClimbPoint = GetNearestClimbingPoint(DropHit.transform, DropHit.point);
-
+                    Debug.Log($"DropHit on Surface: {DropHit.transform}");
                     playerScript.SetControl(false);
-                    InOutValue = 0.1f;
-                    UpDownValue = -0.44f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("DropToFreehang", currentClimbPoint.transform, 0.41f, 0.54f,
-                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(DropToFreehang, currentClimbPoint.transform);
                 }
             }
         }
@@ -86,31 +100,20 @@ public class ClimbingController : MonoBehaviour
 
                 if (neighbour.pointDirection.y == 1)
                 {
-                    InOutValue = 0.1f;
-                    UpDownValue = 0.05f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ClimbUp", currentClimbPoint.transform, 0.34f, 0.64f,
-                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(ClimbActions[DIR.UP], currentClimbPoint.transform);
                 }
                 else if (neighbour.pointDirection.y == -1)
                 {
-                    InOutValue = 0.2f;
-                    UpDownValue = 0.05f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ClimbDown", currentClimbPoint.transform, 0.31f, 0.68f,
-                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(ClimbActions[DIR.DOWN], currentClimbPoint.transform);
                 }
                 else if (neighbour.pointDirection.x == 1)
                 {
-                    StartCoroutine(ClimbToLedge("ClimbRight", currentClimbPoint.transform, 0.20f, 0.51f));
+                    ClimbActions[DIR.RIGHT].OffSetValue = currentClimbAction.OffSetValue;
+                    SetClimbingAction(ClimbActions[DIR.RIGHT], currentClimbPoint.transform);
                 }
                 else if (neighbour.pointDirection.x == -1)
                 {
-                    InOutValue = 0.1f;
-                    UpDownValue = 0.04f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ClimbLeft", currentClimbPoint.transform, 0.20f, 0.51f,
-                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(ClimbActions[DIR.LEFT], currentClimbPoint.transform);
                 }
             }
             else if (neighbour.connetionType == ConnetionType.Move)
@@ -119,49 +122,31 @@ public class ClimbingController : MonoBehaviour
 
                 if (neighbour.pointDirection.x == 1)
                 {
-                    InOutValue = 0.2f;
-                    UpDownValue = 0.03f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ShimmyRight", currentClimbPoint.transform, 0f, 0.30f,
-                        playerHandOffset: new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(ShimmyActions[DIR.RIGHT], currentClimbPoint.transform);
                 }
                 else if (neighbour.pointDirection.x == -1)
                 {
-                    InOutValue = 0.2f;
-                    UpDownValue = 0.03f;
-                    LeftRightValue = 0.25f;
-                    StartCoroutine(ClimbToLedge("ShimmyLeft", currentClimbPoint.transform, 0f, 0.30f,
-                        AvatarTarget.LeftHand, new Vector3(InOutValue, UpDownValue, LeftRightValue)));
+                    SetClimbingAction(ShimmyActions[DIR.LEFT], currentClimbPoint.transform);
                 }
             }
         }
     }
 
-    IEnumerator ClimbToLedge(string animationName, Transform ledgePoint, float compareStartTime, float compareEndTime,
-        AvatarTarget hand = AvatarTarget.RightHand, Vector3? playerHandOffset = null)
+    void SetClimbingAction(NewClimbAction action, Transform ledge)
     {
-        var compareParams = new CompareTargetParameter()
-        {
-            position = SetHandPosition(ledgePoint, hand, playerHandOffset),
-            bodyPart = hand,
-            positionWeight = Vector3.one,
-            startTime = compareStartTime,
-            endTime = compareEndTime
-        };
-
-        var requiredRot = Quaternion.LookRotation(-ledgePoint.forward);
-
-        yield return playerScript.PerformAction(animationName, compareParams, requiredRot, true);
-
-        playerScript.playerHanging = true;
+        Debug.Log($"action: {action}");
+        currentClimbAction = action;
+        currentClimbAction.SetComparePostion(ledge);
+        StartCoroutine(ClimbToLedge(action));
     }
 
-    Vector3 SetHandPosition(Transform ledge, AvatarTarget hand, Vector3? playerHandOffset)
+    IEnumerator ClimbToLedge(NewClimbAction action)
     {
-        var offsetValue = (playerHandOffset != null) ? playerHandOffset.Value : new Vector3(InOutValue, UpDownValue, LeftRightValue);
+        var requiredRot = Quaternion.LookRotation(-action.LedgePoint.forward);
 
-        var handDirection = (hand == AvatarTarget.RightHand) ? ledge.right : -ledge.right;
-        return ledge.position + ledge.forward * InOutValue + Vector3.up * UpDownValue - handDirection * LeftRightValue;
+        yield return playerScript.PerformAction(action.AnimationName, action.CTP, requiredRot, true);
+
+        playerScript.playerHanging = true;
     }
 
     IEnumerator JumpFromWall()

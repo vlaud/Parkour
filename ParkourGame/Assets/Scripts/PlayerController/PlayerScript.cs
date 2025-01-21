@@ -222,6 +222,7 @@ public class PlayerScript : MonoBehaviour
     }
 }
 
+[System.Serializable]
 public class CompareTargetParameter
 {
     public Vector3 position;
