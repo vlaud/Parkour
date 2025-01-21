@@ -12,3 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7560fb62ec93934449766a68983e203c, type: 3}
   m_Name: ClimbLeft
   m_EditorClassIdentifier: 
+  animationName: ClimbLeft
+  offSetValue: {x: 0.1, y: 0.04, z: 0.25}
+  ctp:
+    position: {x: 6.309404, y: 15.201, z: 17.601997}
+    bodyPart: 5
+    positionWeight: {x: 1, y: 1, z: 1}
+    startTime: 0.2
+    endTime: 0.51

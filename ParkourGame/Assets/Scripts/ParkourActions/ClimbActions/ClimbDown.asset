@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7560fb62ec93934449766a68983e203c, type: 3}
   m_Name: ClimbDown
   m_EditorClassIdentifier: 
-  animationName: 
-  offSetValue: {x: 0, y: 0, z: 0}
+  animationName: ClimbDown
+  offSetValue: {x: 0.2, y: 0.05, z: 0.25}
   ctp:
-    position: {x: 0, y: 0, z: 0}
-    bodyPart: 0
-    positionWeight: {x: 0, y: 0, z: 0}
-    startTime: 0
-    endTime: 0
+    position: {x: 1.688, y: 12.223001, z: 19.724}
+    bodyPart: 5
+    positionWeight: {x: 1, y: 1, z: 1}
+    startTime: 0.31
+    endTime: 0.68

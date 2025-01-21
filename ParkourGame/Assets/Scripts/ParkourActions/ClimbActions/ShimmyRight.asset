@@ -12,3 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7560fb62ec93934449766a68983e203c, type: 3}
   m_Name: ShimmyRight
   m_EditorClassIdentifier: 
+  animationName: ShimmyRight
+  offSetValue: {x: 0.2, y: 0.03, z: 0.25}
+  ctp:
+    position: {x: 1.493, y: 15.194, z: 21.889002}
+    bodyPart: 5
+    positionWeight: {x: 1, y: 1, z: 1}
+    startTime: 0
+    endTime: 0.3

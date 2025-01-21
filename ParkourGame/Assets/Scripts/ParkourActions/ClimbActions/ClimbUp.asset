@@ -15,7 +15,7 @@ MonoBehaviour:
   animationName: ClimbUp
   offSetValue: {x: 0.1, y: 0.05, z: 0.25}
   ctp:
-    position: {x: 1.82, y: 9.333, z: 19.874}
+    position: {x: 1.593, y: 15.214001, z: 19.889002}
     bodyPart: 5
     positionWeight: {x: 1, y: 1, z: 1}
     startTime: 0.34
