@@ -21,10 +21,6 @@ public class ClimbingController : MonoBehaviour
     [SerializeField] ClimbingPoint currentClimbPoint;
     [SerializeField] ClimbingPoint tempCheckPoint;
 
-    private float InOutValue;
-    private float UpDownValue;
-    private float LeftRightValue;
-
     private void Awake()
     {
         ec = GetComponent<EnvironmentChecker>();
@@ -32,16 +28,7 @@ public class ClimbingController : MonoBehaviour
 
     private void Update()
     {
-        if (ec.CheckDropClimbPoint(out RaycastHit checkHit))
-        {
-            tempCheckPoint = GetNearestClimbingPoint(checkHit.transform, checkHit.point);
-            Debug.Log($"checkHit : {tempCheckPoint}");
-        }
-        else
-        {
-            tempCheckPoint = null;
-        }
-
+        ec.RayToClimbPoint();
         if (!playerScript.playerHanging)
         {
             if (Input.GetButton("Jump") && !playerScript.playerInAction)
@@ -59,7 +46,7 @@ public class ClimbingController : MonoBehaviour
             {
                 if (ec.CheckDropClimbPoint(out RaycastHit DropHit))
                 {
-                    currentClimbPoint = GetNearestClimbingPoint(DropHit.transform, DropHit.point);
+                    currentClimbPoint = GetNearestClimbingPoint(DropHit.transform);
                     Debug.Log($"DropHit on Surface: {DropHit.transform}");
                     playerScript.SetControl(false);
                     SetClimbingAction(DropToFreehang, currentClimbPoint.transform);
@@ -170,7 +157,7 @@ public class ClimbingController : MonoBehaviour
         playerScript.SetControl(true);
     }
 
-    ClimbingPoint GetNearestClimbingPoint(Transform dropClimbPoint, Vector3 hitPoint)
+    ClimbingPoint GetNearestClimbingPoint(Transform dropClimbPoint)
     {
         var points = dropClimbPoint.GetComponentsInChildren<ClimbingPoint>();
 
@@ -180,7 +167,7 @@ public class ClimbingController : MonoBehaviour
 
         foreach (var point in points)
         {
-            float distance = Vector3.Distance(point.transform.position, hitPoint);
+            float distance = Vector3.Distance(point.transform.position, transform.position);
 
             if (distance < nearestPointDistance)
             {

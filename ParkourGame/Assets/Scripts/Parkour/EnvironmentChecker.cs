@@ -142,9 +142,8 @@ public class EnvironmentChecker : MonoBehaviour
     {
         DropHit = new RaycastHit();
 
-        var origin = transform.position + Vector3.down * 0.1f + transform.forward * 2f;
+        var origin = transform.position + Vector3.down * 0.2f + transform.forward * 2f;
 
-        Debug.DrawRay(origin, -transform.forward * 3f, Color.red);
         if (Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer | obstacleLayer))
         {
             if ((obstacleLayer & 1 << hit.transform.gameObject.layer) != 0) return false;
@@ -154,6 +153,20 @@ public class EnvironmentChecker : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void RayToClimbPoint()
+    {
+        var origin = transform.position + Vector3.down * 0.2f + transform.forward * 2f;
+        bool hitfound = Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer | obstacleLayer);
+        if (hitfound)
+        {
+            bool hitObs = (obstacleLayer & 1 << hit.transform.gameObject.layer) != 0;
+            hitfound = hitObs ? false : hitfound;
+        }
+        float tempLength = hitfound ? Vector3.Distance(hit.point, origin) : 3f;
+
+        Debug.DrawRay(origin, -transform.forward * tempLength, hitfound ? Color.red : Color.green);
     }
 }
 
