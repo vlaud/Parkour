@@ -8,7 +8,7 @@ public class ClimbingController : MonoBehaviour
     {
         LEFT, RIGHT, UP, DOWN
     }
-    
+
     EnvironmentChecker ec;
     public PlayerScript playerScript;
 
@@ -49,7 +49,7 @@ public class ClimbingController : MonoBehaviour
                     currentClimbPoint = GetNearestClimbingPoint(DropHit.transform);
                     Debug.Log($"DropHit on Surface: {DropHit.transform}");
                     playerScript.SetControl(false);
-                    SetClimbingAction(DropToFreehang, currentClimbPoint.transform);
+                    SetClimbingAction(DropToFreehang, currentClimbPoint.transform, true);
                 }
             }
         }
@@ -119,11 +119,16 @@ public class ClimbingController : MonoBehaviour
         }
     }
 
-    void SetClimbingAction(NewClimbAction action, Transform ledge)
+    void SetClimbingAction(NewClimbAction action, Transform ledge, bool isFreeHang = false)
     {
         Debug.Log($"action: {action}");
         currentClimbAction = action;
         currentClimbAction.SetComparePostion(ledge);
+        if (isFreeHang)
+        {
+            var requiredRot = Quaternion.LookRotation(action.LedgePoint.forward);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, requiredRot, 600f);
+        }
         StartCoroutine(ClimbToLedge(action));
     }
 
