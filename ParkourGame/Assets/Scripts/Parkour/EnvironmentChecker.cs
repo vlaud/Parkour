@@ -85,27 +85,32 @@ public class EnvironmentChecker : MonoBehaviour
         return false;
     }
 
-    public bool CheckLedge(Vector3 movementDirection, out LedgeInfo ledgeInfo)
+    public bool CheckLedge(Vector3 movementDirection, out LedgeInfo ledgeInfo, bool ledgeJumpOnMove = false)
     {
+        Vector3 moveDir = movementDirection;
         ledgeInfo = new LedgeInfo();
-        if (movementDirection == Vector3.zero)
-            return false;
+        if (movementDirection == Vector3.zero && !ledgeJumpOnMove)
+            moveDir = transform.forward;
+
 
         float ledgeOriginOffset = 0.5f;
-        var ledgeOrigin = transform.position + movementDirection * ledgeOriginOffset + Vector3.up;
+        var ledgeOrigin = transform.position + moveDir * ledgeOriginOffset + Vector3.up;
 
-        if (Physics.Raycast(ledgeOrigin, Vector3.down, out RaycastHit hit, ledgeRayLength, obstacleLayer))
+        if (Physics.Raycast(ledgeOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, obstacleLayer))
         {
-            Debug.DrawRay(ledgeOrigin, Vector3.down * ledgeRayLength, Color.blue);
-
-            var surfaceRaycastOrigin = transform.position + movementDirection - new Vector3(0, 0.1f, 0);
-            if (Physics.Raycast(surfaceRaycastOrigin, -movementDirection, out RaycastHit surfaceHit, 2, obstacleLayer))
+            var surfaceRaycastOrigin = transform.position + moveDir - new Vector3(0, 0.1f, 0);
+            if (Physics.Raycast(surfaceRaycastOrigin, -moveDir, out RaycastHit surfaceHit, 2, obstacleLayer))
             {
                 float LedgeHeight = transform.position.y - hit.point.y;
-
+                float dist = Vector3.Distance(surfaceHit.point, surfaceRaycastOrigin);
+                Debug.DrawRay(surfaceRaycastOrigin, -moveDir * dist, Color.blue);
                 if (LedgeHeight > ledgeRayHeightThreshold)
                 {
-                    ledgeInfo.angle = Vector3.Angle(transform.forward, surfaceHit.normal);
+                    Vector3 normal = surfaceHit.normal;
+
+                    // 지붕 난간에 있을때를 대비해 normal.y는 0f로 변경
+                    normal.y = 0f;
+                    ledgeInfo.angle = Vector3.Angle(transform.forward, normal);
                     ledgeInfo.height = LedgeHeight;
                     ledgeInfo.surfaceHit = surfaceHit;
                     return true;
@@ -147,7 +152,7 @@ public class EnvironmentChecker : MonoBehaviour
         if (Physics.Raycast(origin, -transform.forward, out RaycastHit hit, 3f, climbingLayer | obstacleLayer))
         {
             if ((obstacleLayer & 1 << hit.transform.gameObject.layer) != 0) return false;
-            
+
             DropHit = hit;
             return true;
         }

@@ -27,6 +27,7 @@ public class PlayerScript : MonoBehaviour
     public LedgeInfo LedgeInfo { get; set; }
     public SlideInfo SlideInfo { get; set; }
 
+    [SerializeField] bool ledgeJumpOnMove = true;
     [SerializeField] float fallingSpeed;
     [SerializeField] float movementValueOffset = 0.04f;
     [SerializeField] Vector3 moveDir;
@@ -50,7 +51,7 @@ public class PlayerScript : MonoBehaviour
             fallingSpeed = 0f;
             velocity = moveDir * movementSpeed;
 
-            playerOnLedge = environmentChecker.CheckLedge(moveDir, out LedgeInfo ledgeInfo);
+            playerOnLedge = environmentChecker.CheckLedge(moveDir, out LedgeInfo ledgeInfo, ledgeJumpOnMove);
 
             if (playerOnLedge)
             {
