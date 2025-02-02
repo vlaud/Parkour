@@ -43,7 +43,7 @@ public class ParkourControllerScript : MonoBehaviour
             }
         }
 
-        if (playerScript.playerOnLedge && !playerScript.playerInAction && Input.GetButtonDown("Jump"))
+        if (playerScript.playerOnLedge && !playerScript.playerHanging && !playerScript.playerInAction && Input.GetButtonDown("Jump"))
         {
             if(playerScript.LedgeInfo.angle <= 50)
             {
